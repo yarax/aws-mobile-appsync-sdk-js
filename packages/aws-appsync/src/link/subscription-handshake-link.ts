@@ -73,6 +73,7 @@ export class SubscriptionHandshakeLink extends ApolloLink {
                         }
                     });
                 }
+                client
             };
         });
     }
@@ -165,7 +166,10 @@ export class SubscriptionHandshakeLink extends ApolloLink {
             });
         }).then(client => {
             // console.log(`Doing setup for ${topics.length} topics`, topics);
-
+            (client as any).onConnectionLost = (err) => {
+                console.log('onConnectionLost', err);
+                observer.error(err);
+            }
             const subPromises = topics.map(topic => new Promise((resolve, reject) => {
                 (client as any).subscribe(topic, {
                     onSuccess: () => {
